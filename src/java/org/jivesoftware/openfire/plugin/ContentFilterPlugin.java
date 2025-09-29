@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2008 Jive Software. All rights reserved.
+ * Copyright (C) 2004-2008 Jive Software, 2025 Ignite Realtime Foundation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -159,6 +159,16 @@ public class ContentFilterPlugin implements Plugin, PacketInterceptor {
      */
     public static final SystemProperty<Boolean> FILTER_STATUS_ENABLED_PROPERTY = SystemProperty.Builder.ofType(Boolean.class)
         .setKey("plugin.contentFilter.filter.status.enabled")
+        .setDynamic(true)
+        .setDefaultValue(false)
+        .setPlugin(pluginName)
+        .build();
+
+    /**
+     * The expected value is a boolean, if true, pattern matching is case-sensitive.
+     */
+    public static final SystemProperty<Boolean> FILTER_STATUS_CASESENSITIVE_PROPERTY = SystemProperty.Builder.ofType(Boolean.class)
+        .setKey("plugin.contentFilter.filter.status.casesensitive.enabled")
         .setDynamic(true)
         .setDefaultValue(false)
         .setPlugin(pluginName)
@@ -380,6 +390,15 @@ public class ContentFilterPlugin implements Plugin, PacketInterceptor {
     public void setFilterStatusEnabled(boolean enabled) {
         filterStatusEnabled = enabled;
         FILTER_STATUS_ENABLED_PROPERTY.setValue(enabled);
+    }
+
+    public void setCaseSensitive(boolean caseSensitive) {
+        FILTER_STATUS_CASESENSITIVE_PROPERTY.setValue(caseSensitive);
+        contentFilter.setCaseSensitive(caseSensitive);
+    }
+
+    public boolean isCaseSensitive() {
+        return FILTER_STATUS_CASESENSITIVE_PROPERTY.getValue();
     }
 
     private void changeContentFilterPatterns() {
