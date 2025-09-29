@@ -23,7 +23,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.dom4j.Element;
-import org.xmpp.packet.Message;
 import org.xmpp.packet.Packet;
 
 /**
@@ -36,7 +35,7 @@ public class ContentFilter {
 
     private String patterns;
 
-    private Collection<Pattern> compiledPatterns = new ArrayList<Pattern>();
+    private final Collection<Pattern> compiledPatterns = new ArrayList<>();
 
     private String mask;
 
@@ -82,8 +81,8 @@ public class ContentFilter {
 
             compiledPatterns.clear();
 
-            for (int i = 0; i < data.length; i++) {
-                compiledPatterns.add(Pattern.compile(data[i], isCaseSensitive ? 0 : Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE));
+            for (String datum : data) {
+                compiledPatterns.add(Pattern.compile(datum, isCaseSensitive ? 0 : Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE));
             }
         }
         else {
@@ -110,7 +109,7 @@ public class ContentFilter {
     /**
      * Clears the content mask.
      *
-     * @see #filter(Message)
+     * @see #setMask(String)
      */
     public void clearMask() {
         mask = null;
@@ -147,12 +146,12 @@ public class ContentFilter {
     /**
      * Filters packet content.
      *
-     * @param packet the packet to filter, its content may be altered if there
+     * @param stanza the packet to filter, its content may be altered if there
      *            are content matches and a content mask is set
      * @return true if the msg content matched up, false otherwise
      */
-    public boolean filter(Packet p) {        
-        return process(p.getElement());
+    public boolean filter(Packet stanza) {
+        return process(stanza.getElement());
     }
 
     private boolean process(Element element) {
@@ -178,7 +177,7 @@ public class ContentFilter {
         
         String content = element.getText();
         
-        if ((content != null) && (content.length() > 0)) {
+        if ((content != null) && (!content.isEmpty())) {
             
             for (Pattern pattern : compiledPatterns) {                
                 

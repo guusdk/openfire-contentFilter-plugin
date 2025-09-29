@@ -47,7 +47,7 @@ public class ContentFilterPlugin implements Plugin, PacketInterceptor {
 
     private static final Logger Log = LoggerFactory.getLogger(ContentFilterPlugin.class);
 
-    private static String pluginName = "Content Filter";
+    private static final String pluginName = "Content Filter";
 
     /**
      * The expected value is a boolean, if true the user identified by the value
@@ -214,17 +214,17 @@ public class ContentFilterPlugin implements Plugin, PacketInterceptor {
     /**
      * the hook into the interceptor chain
      */
-    private InterceptorManager interceptorManager;
+    private final InterceptorManager interceptorManager;
 
     /**
      * used to send violation notifications
      */
-    private MessageRouter messageRouter;
+    private final MessageRouter messageRouter;
 
     /**
      * delegate that does the real work of this plugin
      */
-    private ContentFilter contentFilter;
+    private final ContentFilter contentFilter;
 
     /**
      * flags if sender should be notified of rejections
@@ -295,7 +295,7 @@ public class ContentFilterPlugin implements Plugin, PacketInterceptor {
     /**
      * violation notification messages will be from this JID
      */
-    private JID violationNotificationFrom;
+    private final JID violationNotificationFrom;
 
     public ContentFilterPlugin() {
         contentFilter = new ContentFilter();
@@ -556,10 +556,7 @@ public class ContentFilterPlugin implements Plugin, PacketInterceptor {
 
             Packet original = packet;
 
-            if (Log.isDebugEnabled()) {
-                Log.debug("Content filter: intercepted packet:"
-                        + original.toString());
-            }
+            Log.debug("Content filter: intercepted packet: {}", original);
 
             // make a copy of the original packet only if required,
             // as it's an expensive operation
@@ -571,18 +568,13 @@ public class ContentFilterPlugin implements Plugin, PacketInterceptor {
             // filter the packet
             boolean contentMatched = contentFilter.filter(packet);
 
-            if (Log.isDebugEnabled()) {
-                Log.debug("Content filter: content matched? " + contentMatched);
-            }
+            Log.debug("Content filter: content matched? {}", contentMatched);
 
             // notify admin of violations
             if (contentMatched && violationNotificationEnabled) {
 
-                if (Log.isDebugEnabled()) {
-                    Log.debug("Content filter: sending violation notification");
-                    Log.debug("Content filter: include original msg? "
-                            + this.violationIncludeOriginalPacketEnabled);
-                }
+                Log.debug("Content filter: sending violation notification");
+                Log.debug("Content filter: include original msg? {}", this.violationIncludeOriginalPacketEnabled);
 
                 sendViolationNotification(original);
             }
@@ -596,18 +588,13 @@ public class ContentFilterPlugin implements Plugin, PacketInterceptor {
                 
                 if (allowOnMatch) {
                                         
-                    if (Log.isDebugEnabled()) {
-                        Log.debug("Content filter: allowed content:"
-                                + packet.toString());
-                    }
-                    
+                    Log.debug("Content filter: allowed content: {}", packet);
+
                     // no further action required
                     
                 } else {
                     // msg must be rejected
-                    if (Log.isDebugEnabled()) {
-                        Log.debug("Content filter: rejecting packet");
-                    }
+                    Log.debug("Content filter: rejecting packet: {}", packet);
 
                     PacketRejectedException rejected = new PacketRejectedException(
                             "Packet rejected with disallowed content!");
@@ -667,17 +654,13 @@ public class ContentFilterPlugin implements Plugin, PacketInterceptor {
 
         if (violationNotificationByIMEnabled) {
 
-            if (Log.isDebugEnabled()) {
-                Log.debug("Content filter: sending IM notification");
-            }
+            Log.debug("Content filter: sending IM notification");
             sendViolationNotificationIM(subject, body);
         }
 
         if (violationNotificationByEmailEnabled) {
 
-            if (Log.isDebugEnabled()) {
-                Log.debug("Content filter: sending email notification");
-            }
+            Log.debug("Content filter: sending email notification");
             sendViolationNotificationEmail(subject, body);
         }
     }
